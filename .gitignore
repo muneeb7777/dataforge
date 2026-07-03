@@ -33,3 +33,6 @@ duckdb_data/
 
 # Alembic
 backend/alembic/versions/__pycache__/
+
+# Build artifacts
+*.tsbuildinfo
