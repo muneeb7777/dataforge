@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Blend ag-grid's quartz-dark theme into the slate palette. */
+.ag-theme-quartz-dark {
+  --ag-background-color: theme("colors.slate.950");
+  --ag-header-background-color: theme("colors.slate.900");
+  --ag-odd-row-background-color: theme("colors.slate.950");
+  --ag-border-color: theme("colors.slate.800");
+  --ag-row-border-color: theme("colors.slate.900");
+  --ag-foreground-color: theme("colors.slate.300");
+  --ag-header-foreground-color: theme("colors.slate.300");
+  --ag-font-family: inherit;
+  --ag-font-size: 13px;
+}

@@ -1,0 +1,100 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dataforge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dataforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dataforge}
+      POSTGRES_DB: ${POSTGRES_DB:-dataforge}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dataforge}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: dataforge-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dataforge-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-dataforge}:${POSTGRES_PASSWORD:-dataforge}@postgres:5432/${POSTGRES_DB:-dataforge}
+      SYNC_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dataforge}:${POSTGRES_PASSWORD:-dataforge}@postgres:5432/${POSTGRES_DB:-dataforge}
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - dataforge_uploads:/app/uploads
+      - dataforge_duckdb:/app/duckdb_data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dataforge-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-dataforge}:${POSTGRES_PASSWORD:-dataforge}@postgres:5432/${POSTGRES_DB:-dataforge}
+      SYNC_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dataforge}:${POSTGRES_PASSWORD:-dataforge}@postgres:5432/${POSTGRES_DB:-dataforge}
+      REDIS_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app
+      - dataforge_uploads:/app/uploads
+      - dataforge_duckdb:/app/duckdb_data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["celery", "-A", "app.core.celery_app", "worker", "-B", "--loglevel=info", "--pool=solo"]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: dataforge-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+volumes:
+  pgdata:
+  dataforge_uploads:
+  dataforge_duckdb:
