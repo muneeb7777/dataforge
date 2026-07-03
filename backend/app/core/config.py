@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     environment: str = "development"
+    # Comma-separated allowed origins for production CORS,
+    # e.g. "https://dataforge.vercel.app"
+    cors_origins: str = ""
 
     # Database
     database_url: str = "postgresql+asyncpg://dataforge:dataforge@localhost:5432/dataforge"
