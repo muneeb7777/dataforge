@@ -2,9 +2,13 @@ import axios from "axios";
 import { useAuth } from "./auth";
 
 // Fallback: production bundles must never point at localhost (a build without
-// VITE_API_URL would otherwise fail silently with network errors).
+// VITE_API_URL would otherwise fail silently with network errors). The value is
+// sanitized because a BOM or stray whitespace in the env var makes axios treat
+// it as a relative URL and silently post to the frontend host instead.
+const BOM = String.fromCharCode(0xfeff);
+const rawApiUrl = (import.meta.env.VITE_API_URL ?? "").split(BOM).join("").trim();
 export const API_URL =
-  import.meta.env.VITE_API_URL ??
+  rawApiUrl ||
   (import.meta.env.PROD
     ? "https://app-production-bd4d.up.railway.app"
     : "http://localhost:8000");
