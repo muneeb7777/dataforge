@@ -7,6 +7,7 @@ import StudioPage from "./pages/StudioPage";
 import ChartsPage from "./pages/ChartsPage";
 import StatsPage from "./pages/StatsPage";
 import ExportsPage from "./pages/ExportsPage";
+import HelpPage from "./pages/HelpPage";
 import LoginPage from "./pages/LoginPage";
 import { useAuth } from "./lib/auth";
 
@@ -44,6 +45,7 @@ export default function App() {
         <Route path="/charts" element={<ChartsPage />} />
         <Route path="/stats" element={<StatsPage />} />
         <Route path="/exports" element={<ExportsPage />} />
+        <Route path="/help" element={<HelpPage />} />
       </Route>
     </Routes>
   );

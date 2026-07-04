@@ -7,6 +7,7 @@ import {
   Database,
   Download,
   FlaskConical,
+  HelpCircle,
   Home,
   TerminalSquare,
   Wand2,
@@ -38,6 +39,7 @@ const navItems = [
   { to: "/charts", label: "Charts", icon: BarChart3, end: false },
   { to: "/stats", label: "Stats", icon: FlaskConical, end: false },
   { to: "/exports", label: "Exports", icon: Download, end: false },
+  { to: "/help", label: "Help", icon: HelpCircle, end: false },
 ];
 
 export default function Layout() {
