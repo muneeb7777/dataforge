@@ -36,3 +36,6 @@ jobs:
       - name: Typecheck
         working-directory: frontend
         run: npx tsc -b
+      - name: Run tests
+        working-directory: frontend
+        run: npm test
