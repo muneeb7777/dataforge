@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # Comma-separated allowed origins for production CORS,
     # e.g. "https://dataforge.vercel.app"
     cors_origins: str = ""
+    # Optional regex for origins (e.g. Vercel per-deployment URLs):
+    # "https://dataforge-.*\.vercel\.app"
+    cors_origin_regex: str = ""
 
     # Database
     database_url: str = "postgresql+asyncpg://dataforge:dataforge@localhost:5432/dataforge"

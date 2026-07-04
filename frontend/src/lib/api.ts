@@ -1,7 +1,13 @@
 import axios from "axios";
 import { useAuth } from "./auth";
 
-export const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+// Fallback: production bundles must never point at localhost (a build without
+// VITE_API_URL would otherwise fail silently with network errors).
+export const API_URL =
+  import.meta.env.VITE_API_URL ??
+  (import.meta.env.PROD
+    ? "https://app-production-bd4d.up.railway.app"
+    : "http://localhost:8000");
 
 export const api = axios.create({
   baseURL: API_URL,
